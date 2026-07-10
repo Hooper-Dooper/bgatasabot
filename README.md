@@ -14,11 +14,15 @@
         .type-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; border: 2px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
         .type-btn.selected { background: #3498db; color: white; border-color: #3498db; }
 
-        input[type="date"], select, input[type="text"], input[type="tel"] { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        input[type="date"], select, input[type="text"], input[type="tel"], textarea { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
         input[type="date"].has-value { background-color: #e8f4fd; border-color: #3498db; }
         select.has-value { background-color: #e8f4fd; border-color: #3498db; }
+        textarea { resize: vertical; min-height: 100px; font-family: inherit; }
 
         option:disabled { color: #94a3b8; background-color: #f1f5f9; }
+
+        /* 体験内容の入力欄を隠すための設定 */
+        .trial-detail-box { display: none; margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px dashed #cbd5e1; }
 
         .submit-btn { width: 100%; background: #2ecc71; color: white; border: none; padding: 15px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 30px; }
         .submit-btn:disabled { background: #bdc3c7; cursor: not-allowed; }
@@ -45,6 +49,17 @@
         <input type="hidden" id="reserveType" name="reserveType" value="見学">
         <input type="hidden" id="duration" name="duration" value="1">
 
+        <!-- ② 体験を選んだ時の詳細選択欄 -->
+        <div id="trialDetailBox" class="trial-detail-box">
+            <label for="trialType">【体験】希望するメニューを選んでください</label>
+            <select id="trialType" name="trialType" onchange="handleTimeChange(this)">
+                <option value="">-- メニューを選択してください --</option>
+                <option value="動画編集">動画編集</option>
+                <option value="PC作業(事務/デザイン)">PC作業(事務/デザイン)</option>
+                <option value="ネイリスト(有資格者のみ)">ネイリスト(有資格者のみ)</option>
+            </select>
+        </div>
+
         <label for="reserveDate">2. 日にちを選んでください</label>
         <input type="date" id="reserveDate" name="reserveDate" required onchange="handleDateChange(this)">
         <p class="note">※今日から30日先まで選べます</p>
@@ -61,6 +76,10 @@
 
         <label for="userPhone">5. 電話番号</label>
         <input type="tel" id="userPhone" name="userPhone" placeholder="（例）09012345678" required>
+
+        <!-- ① その他・質問記入用の自由入力欄 -->
+        <label for="otherComment">6. その他（質問などがあればご記入ください）</label>
+        <textarea id="otherComment" name="otherComment" placeholder="質問や連絡事項があればこちらに入力してください。"></textarea>
 
         <button type="submit" class="submit-btn" id="submitBtn">この内容で予約する</button>
     </form>
@@ -91,6 +110,19 @@
         
         document.getElementById('btn-visit').classList.toggle('selected', type === '見学');
         document.getElementById('btn-trial').classList.toggle('selected', type === '体験');
+
+        // ② 体験が選ばれた時だけ詳細欄を表示し、必須項目にする
+        const trialBox = document.getElementById('trialDetailBox');
+        const trialSelect = document.getElementById('trialType');
+        if (type === '体験') {
+            trialBox.style.display = 'block';
+            trialSelect.required = true;
+        } else {
+            trialBox.style.display = 'none';
+            trialSelect.required = false;
+            trialSelect.value = ''; // 見学に戻した時は選択をクリア
+            trialSelect.classList.remove('has-value');
+        }
         
         if(dateInput.value) fetchAvailableSlots(dateInput.value);
     }
@@ -186,22 +218,9 @@
                 this.reset();
                 dateInput.classList.remove('has-value');
                 document.getElementById('reserveTime').classList.remove('has-value');
-                document.getElementById('reserveTime').disabled = true;
-                document.getElementById('reserveTime').innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
-                selectType('見学', 1);
+                document.getElementById('trialType').classList.remove('has-value');
+                document.getElementById('trialDetailBox').style.display = 'none';
             } else {
-                alert("エラー: " + result.message);
+                throw new Error(result.message || "予約の保存に失敗しました。");
             }
         })
-        .catch(err => {
-            alert("通信エラーが発生しました: " + err.message);
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.textContent = "この内容で予約する";
-        });
-    });
-</script>
-
-</body>
-</html>
