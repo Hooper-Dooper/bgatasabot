@@ -79,7 +79,7 @@
 
 <script>
     // ⚠️重要：新しくデプロイしたGASのWebアプリURLをここに貼り付けてください
-    const GAS_URL = "https://google.com";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwaKF1O78OEKzdwUfMZ8BaPk1UgaRmUFHAyvLTijSYPgAIrC1TeZTEmDv0GltI76-O3/exec";
 
     const dateInput = document.getElementById('reserveDate');
     const today = new Date();
