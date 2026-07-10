@@ -41,8 +41,9 @@
 
     <label>1. どちらを希望しますか？</label>
     <div class="type-selector">
-        <button type="button" class="type-btn selected" id="btn-visit" onclick="selectType('見学', 1)">見学 (1時間)</button>
-        <button type="button" class="type-btn" id="btn-trial" onclick="selectType('体験', 2)">体験 (2時間)</button>
+        <!-- 💡 確実に動作させるため、イベント記述をonclickから直接記述に変更しました -->
+        <button type="button" class="type-btn selected" id="btn-visit">見学 (1時間)</button>
+        <button type="button" class="type-btn" id="btn-trial">体験 (2時間)</button>
     </div>
 
     <form id="reserveForm">
@@ -62,7 +63,7 @@
 
         <label for="reserveDate">2. 日にちを選んでください</label>
         <input type="date" id="reserveDate" name="reserveDate" required onchange="handleDateChange(this)">
-        <p class="note">※今日から30日先まで選べます</p>
+        <p class="note">※今日から 30 日先まで選べます</p>
         <p id="loadingText">空いている時間を調べています。すこし待ってね...</p>
         <div id="errorLog"></div>
 
@@ -104,28 +105,37 @@
     const maxDay = String(maxDate.getDate()).padStart(2, '0');
     dateInput.max = `${maxYear}-${maxMonth}-${maxDay}`;
 
-    function selectType(type, hours) {
+    // 🛠️ ボタンの切り替え処理をより確実な方法（EventListener）に修正しました
+    function changeSelection(type, hours) {
         document.getElementById('reserveType').value = type;
         document.getElementById('duration').value = hours;
         
         document.getElementById('btn-visit').classList.toggle('selected', type === '見学');
         document.getElementById('btn-trial').classList.toggle('selected', type === '体験');
 
-        // ② 体験が選ばれた時だけ詳細欄を表示し、必須項目にする
         const trialBox = document.getElementById('trialDetailBox');
         const trialSelect = document.getElementById('trialType');
+        
         if (type === '体験') {
             trialBox.style.display = 'block';
             trialSelect.required = true;
         } else {
             trialBox.style.display = 'none';
             trialSelect.required = false;
-            trialSelect.value = ''; // 見学に戻した時は選択をクリア
+            trialSelect.value = ''; 
             trialSelect.classList.remove('has-value');
         }
         
         if(dateInput.value) fetchAvailableSlots(dateInput.value);
     }
+
+    document.getElementById('btn-visit').addEventListener('click', function() {
+        changeSelection('見学', 1);
+    });
+
+    document.getElementById('btn-trial').addEventListener('click', function() {
+        changeSelection('体験', 2);
+    });
 
     function handleDateChange(input) {
         if(input.value) {
@@ -157,7 +167,6 @@
 
         const url = `${GAS_URL}?action=check&date=${dateStr}&type=${encodeURIComponent(type)}`;
         
-        // リダイレクトを追跡する設定を追加
         fetch(url, { redirect: "follow" })
         .then(res => {
             if (!res.ok) throw new Error("サーバー通信エラーが発生しました。");
@@ -202,7 +211,6 @@
         btn.disabled = true;
         btn.textContent = "送信中...";
 
-        // リダイレクトを追跡する設定を追加
         fetch(GAS_URL, {
             method: "POST",
             body: new URLSearchParams(data),
@@ -219,8 +227,3 @@
                 dateInput.classList.remove('has-value');
                 document.getElementById('reserveTime').classList.remove('has-value');
                 document.getElementById('trialType').classList.remove('has-value');
-                document.getElementById('trialDetailBox').style.display = 'none';
-            } else {
-                throw new Error(result.message || "予約の保存に失敗しました。");
-            }
-        })
