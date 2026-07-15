@@ -41,16 +41,16 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 <input type="hidden" id="reserveType" name="reserveType" value="見学">
 <input type="hidden" id="duration" name="duration" value="1">
 <label for="reserveDate">2. 日にちを選んでください</label>
-<input type="date" id="reserveDate" name="reserveDate" required onchange="handleDateChange(this)">
-<p class="note">※今日から30日先まで選べます</p>
-<p id="loadingText">空いている時間を調べています。すこし待ってね...</p>
+<input type="date" id="reserveDate" name="reserveDate" required>
+<p class="note">※明日から30日先まで選べます</p>
+<p id="loadingText">空いている時間を調べています。もう少々お待ちください...</p>
 <div id="errorLog"></div>
 <label for="reserveTime">3. 時間を選んでください</label>
 <select id="reserveTime" name="reserveTime" required disabled onchange="handleTimeChange(this)">
 <option value="">-- 日にちを先に選んでください --</option>
 </select>
 <label for="userName">4. お名前</label>
-<input type="text" id="userName" name="userName" placeholder="（例）さぼてん　太郎" required>
+<input type="text" id="userName" name="userName" placeholder="お名前をご記入ください" required>
 <label for="userPhone">5. 電話番号</label>
 <input type="tel" id="userPhone" name="userPhone" placeholder="（例）09012345678" required>
 <label for="illnessName">6. 障害名/病名</label>
@@ -81,9 +81,9 @@ const today=new Date();
 const minDate=new Date();
 minDate.setDate(today.getDate() + 1);
 
-// 最大値（予約できる最後の日）を「30日後」に設定
+// 最大値（予約できる最後の日）を「31日後」に設定
 const maxDate=new Date();
-maxDate.setDate(today.getDate() + 30);
+maxDate.setDate(today.getDate() + 31);
 
 // カレンダーの選択可能範囲を設定
 dateInput.min=`${minDate.getFullYear()}-${String(minDate.getMonth()+1).padStart(2,'0')}-${String(minDate.getDate()).padStart(2,'0')}`;
@@ -98,7 +98,13 @@ const tf=document.getElementById('trialFields');
 if(type==='体験'){tf.style.display='block';}else{tf.style.display='none';const s=document.getElementById('desiredTask');s.value='';s.classList.remove('has-value');}
 if(dateInput.value)fetchAvailableSlots(dateInput.value);
 }
-function handleDateChange(input){if(input.value){input.classList.add('has-value');fetchAvailableSlots(input.value);}else{input.classList.remove('has-value');}}
+// ★ここから追加
+dateInput.value = dateInput.min;
+dateInput.classList.add('has-value');
+fetchAvailableSlots(dateInput.value);
+// ★ここまで追加
+
+
 function handleTimeChange(select){if(select.value){select.classList.add('has-value');}else{select.classList.remove('has-value');}}
 function fetchAvailableSlots(dateStr){
 const ts=document.getElementById('reserveTime');
@@ -121,6 +127,58 @@ ts.disabled=false;
 .catch(err=>{ts.innerHTML='<option value="">エラー発生</option>';el.innerText="【エラー】: "+err.message;el.style.display="block";alert("取得失敗:\n"+err.message);})
 .finally(()=>{lt.style.display="none";});
 }
+// iPhoneの発火バグと時差・範囲無視を完璧に防ぐチェック処理
+let isChanging = false;
+dateInput.addEventListener('change', () => { isChanging = true; });
+
+dateInput.addEventListener('blur', function() {
+    if (!isChanging) return; 
+    isChanging = false;
+
+    if (!this.value) {
+        this.classList.remove('has-value');
+        return;
+    }
+
+    const now = new Date();
+    const tYear = now.getFullYear();
+    const tMonth = now.getMonth();
+    const tDate = now.getDate();
+
+    const minCheck = new Date(tYear, tMonth, tDate + 1).getTime();
+    const maxCheck = new Date(tYear, tMonth, tDate + 30).getTime();
+
+    const parts = this.value.split('-');
+    const selectedCheck = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)).getTime();
+    // ★【追加】土日（曜日）のチェックを追加
+    const selectedDay = new Date(parseInt(parts, 10), parseInt(parts, 10) - 1, parseInt(parts, 10)).getDay(); // 0:日, 6:土
+    if (selectedDay === 0 || selectedDay === 6) {
+        alert("土曜日・日曜日は定休日です。\n平日の日付を選択してください。");
+        this.value = "";
+        this.classList.remove('has-value');
+        
+        const ts = document.getElementById('reserveTime');
+        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+        ts.disabled = true;
+        return;
+    }
+
+    // 範囲外（明日より前、または31日後より先）を完全に弾く
+    if (selectedCheck < minCheck || selectedCheck > maxCheck) {
+        alert("予約は【明日から31日先まで】の間で選択してください。");
+        this.value = ""; 
+        this.classList.remove('has-value');
+        
+        const ts = document.getElementById('reserveTime');
+        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+        ts.disabled = true;
+        return;
+    }
+
+    this.classList.add('has-value');
+    fetchAvailableSlots(this.value);
+});
+
 document.getElementById('reserveForm').addEventListener('submit',function(e){
 e.preventDefault();
 const btn=document.getElementById('submitBtn');
