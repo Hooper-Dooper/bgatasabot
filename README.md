@@ -28,9 +28,10 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </style>
 </head>
 <body>
-<div class="container">
-<!-- ★文字を「就労継続支援A型事業所sabot」に変更しました -->
+<div class="title-group">
 <h1>就労継続支援A型事業所sabot</h1>
+   <p class="subtitle">施設見学・予約</p>
+</div>
 <label>1. どちらを希望しますか？</label>
 <div class="type-selector">
 <button type="button" class="type-btn selected" id="btn-visit" onclick="selectType('見学',1)">見学 (1時間)</button>
@@ -75,10 +76,19 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 const GAS_URL="https://script.google.com/macros/s/AKfycbz8s9kvntKunvDdUGG4caJuzDnWpxndllkOhPmrA8FyYGzlkxCJ1nicgcRThTC9pfls/exec";
 const dateInput=document.getElementById('reserveDate');
 const today=new Date();
+
+// 最小値（予約できる最初の日）を「明日」に設定
+const minDate=new Date();
+minDate.setDate(today.getDate() + 1);
+
+// 最大値（予約できる最後の日）を「30日後」に設定
 const maxDate=new Date();
-maxDate.setDate(today.getDate()+30);
-dateInput.min=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+maxDate.setDate(today.getDate() + 30);
+
+// カレンダーの選択可能範囲を設定
+dateInput.min=`${minDate.getFullYear()}-${String(minDate.getMonth()+1).padStart(2,'0')}-${String(minDate.getDate()).padStart(2,'0')}`;
 dateInput.max=`${maxDate.getFullYear()}-${String(maxDate.getMonth()+1).padStart(2,'0')}-${String(maxDate.getDate()).padStart(2,'0')}`;
+
 function selectType(type,hours){
 document.getElementById('reserveType').value=type;
 document.getElementById('duration').value=hours;
