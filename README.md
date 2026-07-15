@@ -29,7 +29,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </head>
 <body>
 <div class="title-group">
-<h1>就労継続支援A型事業所sabot</h1>
+<h1>就労継続支援B型事業所sabot</h1>
    <p class="subtitle">施設見学・予約</p>
 </div>
 <label>1. どちらを希望しますか？</label>
@@ -38,6 +38,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 <button type="button" class="type-btn" id="btn-trial" onclick="selectType('体験',2)">体験 (2時間)</button>
 </div>
 <form id="reserveForm">
+   <input type="hidden" name="shopType" value="B">
 <input type="hidden" id="reserveType" name="reserveType" value="見学">
 <input type="hidden" id="duration" name="duration" value="1">
 <label for="reserveDate">2. 日にちを選んでください</label>
@@ -73,7 +74,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </form>
 </div>
 <script>
-const GAS_URL="https://script.google.com/macros/s/AKfycbz8s9kvntKunvDdUGG4caJuzDnWpxndllkOhPmrA8FyYGzlkxCJ1nicgcRThTC9pfls/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbwLHypwZqEDsWdjmiwgqRjy1lb1FOnYh-y0pU-u8JYKGq7ty_v43i8RoeDEVigBXfMs/exec";
 const dateInput=document.getElementById('reserveDate');
 const today=new Date();
 
