@@ -7,7 +7,9 @@
 <style>
 body{font-family:'Helvetica Neue',Arial,sans-serif;background-color:#f7f9fa;color:#333;margin:0;padding:20px;}
 .container{max-width:600px;margin:0 auto;background:white;padding:30px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
-h1{text-align:center;font-size:24px;color:#2c3e50;margin-bottom:25px;}
+/* ★見出しの文字サイズをスマホ向けに最適化しました */
+h1{text-align:center;font-size:20px;color:#2c3e50;margin-bottom:25px;line-height:1.4;}
+@media (min-width: 480px) { h1{font-size:24px;} } /* パソコン等では元の大きさに */
 label{font-weight:bold;display:block;margin-top:20px;margin-bottom:8px;font-size:16px;}
 .type-selector{display:flex;gap:15px;margin-bottom:20px;}
 .type-btn{flex:1;padding:15px;font-size:18px;font-weight:bold;border:2px solid #cbd5e1;border-radius:8px;background:white;cursor:pointer;transition:all 0.2s;}
@@ -27,7 +29,8 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </head>
 <body>
 <div class="container">
-<h1>施設見学 ・ 体験 予約</h1>
+<!-- ★文字を「就労継続支援A型事業所sabot」に変更しました -->
+<h1>就労継続支援A型事業所sabot</h1>
 <label>1. どちらを希望しますか？</label>
 <div class="type-selector">
 <button type="button" class="type-btn selected" id="btn-visit" onclick="selectType('見学',1)">見学 (1時間)</button>
@@ -46,7 +49,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 <option value="">-- 日にちを先に選んでください --</option>
 </select>
 <label for="userName">4. お名前</label>
-<input type="text" id="userName" name="userName" placeholder="（例）じょうほう ぶろう" required>
+<input type="text" id="userName" name="userName" placeholder="（例）さぼてん　太郎" required>
 <label for="userPhone">5. 電話番号</label>
 <input type="tel" id="userPhone" name="userPhone" placeholder="（例）09012345678" required>
 <label for="illnessName">6. 障害名/病名</label>
@@ -60,6 +63,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 <option value="動画編集">動画編集</option>
 <option value="PC作業（事務/デザイン）">PC作業（事務/デザイン）</option>
 <option value="ネイリスト（有資格者のみ）">ネイリスト（有資格者のみ）</option>
+<option value="清掃">清掃</option> 
 </select>
 </div>
 <label for="otherComment">9. その他</label>
